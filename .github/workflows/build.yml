@@ -1,10 +1,10 @@
-name: Build Expo Apps
+name: Build Expo App
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "App version (tag)"
+        description: "App version tag (vYYYY.MM.DD.HHMMSS)"
         required: true
 
 jobs:
@@ -12,32 +12,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout build repo
         uses: actions/checkout@v4
+
+      - name: Checkout RecipeApp code
+        uses: actions/checkout@v4
+        with:
+          repository: karthik-narayan-v/RecipeApp
+          path: app
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install
-
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Configure Expo
-        run: eas login --token ${{ secrets.EAS_TOKEN }}
+      - name: Install dependencies
+        run: |
+          cd app
+          npm ci
+
+      - name: EAS Login
+        run: eas whoami || eas login --token ${{ secrets.EAS_TOKEN }}
 
       - name: Build Android
-        run: eas build --platform android --non-interactive --profile production
+        run: |
+          cd app
+          eas build --platform android --non-interactive --profile preview \
+            --auto-submit false \
+            --clear-cache \
+            --output ../android-build.aab
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
 
-      # Optional iOS
-      #- name: Build iOS
-      #  run: eas build --platform ios --non-interactive --profile production
-
-      - name: Upload artifacts
+      # Upload artifact
+      - name: Upload Android build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: android-build
-          path: ./build/* # adjust path based on eas.json output
+          name: android-build-${{ github.event.inputs.version }}
+          path: android-build.aab
