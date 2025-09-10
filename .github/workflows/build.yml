@@ -1,7 +1,7 @@
 name: Build Expo Apps
 
 on:
-  workflow_dispatch:   
+  workflow_dispatch:
     inputs:
       version:
         description: "App version (tag)"
@@ -37,7 +37,7 @@ jobs:
       #  run: eas build --platform ios --non-interactive --profile production
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android-build
-          path: ./build/*  # adjust path based on eas.json output
+          path: ./build/* # adjust path based on eas.json output
