@@ -1,9 +1,11 @@
 name: Build Expo Apps
 
 on:
-  push:
-    tags:
-      - "v*" # run on version tags only
+  workflow_dispatch:   
+    inputs:
+      version:
+        description: "App version (tag)"
+        required: true
 
 jobs:
   build:
