@@ -1,0 +1,41 @@
+name: Build Expo Apps
+
+on:
+  push:
+    tags:
+      - "v*" # run on version tags only
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Configure Expo
+        run: eas login --token ${{ secrets.EAS_TOKEN }}
+
+      - name: Build Android
+        run: eas build --platform android --non-interactive --profile production
+
+      # Optional iOS
+      #- name: Build iOS
+      #  run: eas build --platform ios --non-interactive --profile production
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-build
+          path: ./build/*  # adjust path based on eas.json output
