@@ -35,7 +35,7 @@ jobs:
           npm ci
 
       - name: EAS Login
-        run: eas whoami || eas login --token ${{ secrets.EAS_TOKEN }}
+        run: eas whoami || eas login --non-interactive --token ${{ secrets.EAS_TOKEN }}
 
       - name: Build Android
         run: |
@@ -47,7 +47,6 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
 
-      # Upload artifact
       - name: Upload Android build artifact
         uses: actions/upload-artifact@v4
         with:
